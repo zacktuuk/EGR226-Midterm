@@ -29,16 +29,14 @@ void main(void)
     LCD_init();
 enum states state= mainmenu;
 int main_menu_keypad;
-int door_check;                                     //prevents door menu from continuously prining, might have to figure out how to update later
-int door_menu_keypad;
+int door_check=0;                                     //prevents door menu from continuously prining, might have to figure out how to update later
+int door_menu_keypad=2;
 main_menu();
 while(1){
 
-main_menu_keypad=Menu_Keypad();
-//door_menu_keypad=Door_Menu_Keypad();
 switch (state){
 case mainmenu:
-    //Menu_Keypad();                              used for printing what value we entered
+    main_menu_keypad=Menu_Keypad();
     if (main_menu_keypad==1){
         state=door;
     }
@@ -52,7 +50,6 @@ case mainmenu:
 case door:
    door_menu_keypad=Door_Menu_Keypad();
     if(door_check!=1){
-    LCD_init();
     door_check=door_menu();
     }
     if (door_check==1)
@@ -61,12 +58,10 @@ case door:
         door_check=1;
         if(door_menu_keypad==1)
         {
-//            delay_ms(10);
             door_open();
         }
         if(door_menu_keypad==2)
         {
-//            delay_ms(10);
             door_closed();
         }
 
@@ -147,6 +142,13 @@ P1->OUT &= ~BIT5;
                      P3->DIR  |= BIT7;
                      P3->OUT &=~BIT7;
 //***************************************************************************************************
+
+//******************Servo Pin Declaration****************************
+                     P5->SEL0 |= (BIT7);                         //Timer A pin
+                     P5->SEL1 &= ~(BIT7);
+                     P5->DIR |= (BIT7);
+//***********************************************************************8
+
 }
 
 void reset()
@@ -191,6 +193,10 @@ void door_open()
 {
     P3->OUT |= BIT6;
     P3->OUT &=~BIT7;
+      TIMER_A0->CCR[0] = 37500-1;                      //40Hz
+      TIMER_A0->CCR[4]= (37500*motorspd)-1;             //desired duty cycle
+      TIMER_A0->CCTL[4]= 0xE0;                       //reset/set mode
+      TIMER_A0->CTL = 0b0000001001010100;                     //use SMLCLK, count up, clear TA0R register
     //servo open
     printf("Open\n");
 }
@@ -198,12 +204,15 @@ void door_closed()
 {
        P3->OUT |= BIT7;
        P3->OUT &=~BIT6;
+         TIMER_A0->CCR[0] = 37500-1;                      //40Hz
+         TIMER_A0->CCR[4]= (37500*motorspd)-1;             //desired duty cycle
+         TIMER_A0->CCTL[4]= 0xE0;                       //reset/set mode
+         TIMER_A0->CTL = 0b0000001001010100;                     //use SMLCLK, count up, clear TA0R register
        //servo closed
        printf("Close\n");
 }
 int Door_Menu_Keypad()                                    //Reads the key pad values
 {
-//    int door_variable;
     P4->DIR |= BIT1;                              //set bit 1 to output
     P4->OUT &= ~BIT1;                             //send out a low
 
