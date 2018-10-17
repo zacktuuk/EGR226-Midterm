@@ -1,0 +1,100 @@
+void commandWrite(uint8_t command);   //command function for LCD main menu
+void pushByte(uint8_t byte);           //pushByte function for LCD main menu
+void dataWrite(uint8_t data);        //dataWrite for LCD main menu
+void pushNibble (uint8_t nibble);      //push over four bits for LCD main menu
+void PulseEnablePin();                  //Pulse Enable (E)  for LCD main menu
+void delay_ms(unsigned ms);             //delay for a set millisecond delay  used in LCD main menu
+void delay_micro(unsigned microsec);      //delay for a microsecond delay   used in LCD main menu
+void commandWrite(uint8_t command)
+{
+
+P1->OUT &= ~BIT6;                            //RS Pin to 0
+pushByte(command);
+
+}
+/*
+ * dataWrite is used to send symbols to the LCD
+ */
+void dataWrite(uint8_t data)
+{
+
+P1->OUT |= BIT6;                               //RS Pin to 1
+pushByte(data);
+}
+void pushByte(uint8_t byte)                                           //referenced from Kandalaf lecture
+{
+uint8_t nibble;
+nibble = (byte & 0xF0)>>4;         //copy in most significant bits by anding with 11110000b
+pushNibble(nibble);
+nibble = byte & 0x0F;              //copy in least significant bits by anding with 00001111b
+pushNibble(nibble);
+delay_micro(10000);                  //delay for 100 microseconds
+}
+void pushNibble (uint8_t nibble)                                          //referenced from Kandalaf Lecture
+{
+P6->OUT &=~(BIT7|BIT6|BIT5|BIT4); //BIT7|BIT6|BIT5|BIT4
+P6->OUT |= (nibble & 0x0F)<<4; //and nibble with 1111b to copy it and then shift it to the left 4 bits
+
+PulseEnablePin();
+}
+/*
+ * PulseEnablePin() allowed for data to be read
+ * on the LCD every 10,000 microseconds
+ */
+void PulseEnablePin()                                                      //referenced from Kandalaf Lecture
+{
+int microsecond = 10000;            //delay 10000 microseconds
+P1->OUT &= ~BIT5;               //Enable is zero
+delay_micro(microsecond);       //wait 10000 microseconds
+P1->OUT |= BIT5;                //Enable is 1
+delay_micro(microsecond);       //wait 10000 microseconds
+P1->OUT &= ~BIT5;               //enable is 0
+delay_micro(microsecond);       //wait 10000 microseconds
+}
+void delay_ms(unsigned ms)
+{
+    SysTick -> LOAD = ((ms*3000)-1);   // ms second countdown to 0;
+    SysTick -> VAL =0;                    //any write to CVR clears it
+
+       while((SysTick -> CTRL & 0x00010000)==0);
+}
+void delay_micro(unsigned microsec)
+{
+    SysTick -> LOAD = ((microsec*3)-1);   // microsecond second countdown to 0;
+    SysTick -> VAL =0;                    //any write to CVR clears it
+
+       while((SysTick -> CTRL & 0x00010000)==0);
+}
+
+void main_menu()
+{
+    char myname[]="      Menu          ";
+      char zackname[]="1. Door         ";
+       char egr[]="2. Motor                ";
+       char two[]="3. Lights";
+       int i=0;
+       //LCD_init();   //lcd cursor blink
+       while(!(myname[i]=='\0')){                            //print my name until null
+       dataWrite(myname[i]);
+       i++;
+       }
+       i=0;
+       while (!(egr[i]=='\0'))                                 //print EGR until null
+       {
+           dataWrite(egr[i]);
+           i++;
+       }
+       i=0;
+       while(!(zackname[i]=='\0'))                             //print partner's name until null
+       {
+           dataWrite(zackname[i]);
+           i++;
+       }
+       i=0;
+       while(!(two[i]=='\0'))                                   //print 226 until null
+       {
+           dataWrite(two[i]);
+           i++;
+       }
+
+}

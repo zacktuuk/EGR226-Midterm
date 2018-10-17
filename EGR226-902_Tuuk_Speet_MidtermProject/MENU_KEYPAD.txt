@@ -1,0 +1,108 @@
+int Menu_Keypad();
+int menu_flag;
+int menu_variable;
+/*
+ * Sets the desired column to high before the rows are read within each column. A while loop is included
+ * in each to make sure the button is let go before returning a value.
+ */
+int Menu_Keypad()                                    //Reads the key pad values
+{
+    P4->DIR |= BIT1;                              //set bit 1 to output
+    P4->OUT &= ~BIT1;                             //send out a low
+
+
+   if(!( P4->IN & BIT4)){
+       while(!(P4->IN & BIT4)){}
+       menu_variable= 11;                                 //returns a flag for #
+       menu_flag=1;
+       return menu_variable;
+   }
+
+   if(!( P4->IN & BIT5)){
+       while(!(P4->IN & BIT5)){}
+       menu_variable= 9;
+       menu_flag=1;
+       return menu_variable;
+   }
+   if(!( P4->IN & BIT6)){
+       while(!(P4->IN & BIT6)){}
+       menu_variable= 6;
+       menu_flag=1;
+       return menu_variable;
+   }
+   if(!( P4->IN & BIT7)){
+       while(!(P4->IN & BIT7)){}
+       menu_variable= 3;
+       menu_flag=1;
+       return menu_variable;
+   }
+           reset();                                //reset columns
+
+     P4->DIR |= BIT2;                              //set bit 2 to output
+     P4->OUT &= ~BIT2;                             //send out a low
+
+     if(!( P4->IN & BIT4)){
+         while(!(P4->IN & BIT4)){}
+          menu_variable= 0;
+          menu_flag=1;
+          return menu_variable;
+     }
+      if(!( P4->IN & BIT5)){
+          while(!(P4->IN & BIT5)){}
+          menu_variable= 8;
+          menu_flag=1;
+          return menu_variable;
+      }
+      if(!( P4->IN & BIT6)){
+          while(!(P4->IN & BIT6)){}
+          menu_variable= 5;
+          menu_flag=1;
+          return menu_variable;
+      }
+      if(!( P4->IN & BIT7)){
+          while(!(P4->IN & BIT7)){}
+          menu_variable= 2;
+          menu_flag=1;
+          return menu_variable;
+      }
+
+              reset();                              //reset columns
+
+
+       P4->DIR |= BIT3;                              //set bit 3 to output
+       P4->OUT &= ~BIT3;                             //send out a low
+
+       if(!( P4->IN & BIT4)){
+           while(!(P4->IN & BIT4)){}
+              menu_variable= 10;                            //returns a flag for *
+              menu_flag=1;
+              return menu_variable;
+       }
+          if(!( P4->IN & BIT5)){
+              while(!(P4->IN & BIT5)){}
+              menu_variable= 7;
+              menu_flag=1;
+              return menu_variable;
+          }
+          if(!( P4->IN & BIT6)){
+              while(!(P4->IN & BIT6)){}
+              menu_variable= 4;
+              menu_flag=1;
+              return menu_variable;
+          }
+          if(!( P4->IN & BIT7)){
+              while(!(P4->IN & BIT7)){}
+              menu_variable= 1;
+              menu_flag=1;
+              return menu_variable;
+          }
+
+                  reset();                              //reset columns
+
+                  if ((menu_flag!=1))      {                    //if none are pressed return -1
+                      menu_variable=-1;
+                  return menu_variable;
+                  }
+    return menu_variable;
+
+ }

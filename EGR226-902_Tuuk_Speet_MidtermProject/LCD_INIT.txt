@@ -1,0 +1,23 @@
+void LCD_init()
+{
+commandWrite(3);                               //LCD_init referenced from Lab Write-up
+delay_ms(10);
+commandWrite(3);
+delay_micro(10000);
+commandWrite(3);
+delay_ms(10);
+
+commandWrite(2);
+delay_micro(10000);
+commandWrite(2);
+delay_micro(10000);
+
+commandWrite(8);
+delay_micro(10000);
+commandWrite(0x0F);
+delay_micro(10000);
+commandWrite(1);
+delay_micro(10000);
+commandWrite(6);
+delay_ms(10);
+}
